@@ -41,22 +41,33 @@ object MDP {
         this.discountFactor = dFactor
     }
 
-    def getDirections(x: Int, y: Int, H: Int): Unit = {
+    def getRewardFromGrid(row: Int, col: Int): Array[Tuple2[Double, Double]] = {
         
-        if(valueGrid.length < 1) return;
+        if(valueGrid.length < 1) return(Array[Tuple2[Double, Double]]())
 
-        val colX = valueGrid(0).length
-        val rowY = valueGrid.length
+        val colX = valueGrid(0).length - 1
+        val rowY = valueGrid.length - 1
+        val tup = (row, col)
+        println(tup)
 
-        val tup = (x, y)
-
+        tup match {
+            case (0, 0) => Array((0,1), (1,0))
+            case (0, colX)  => Array((0, colX - 1), (1, colX))
+            case (rowY, 0)  => Array((rowY - 1, 0), (rowY, 1))
+            case (rowY, colX) => Array((rowY - 1, colX), (rowY, colX - 1))
+            case (0, _) => Array((0, col + 1), (0, col -1 ), (1, col))
+            case (rowY, _) => Array( (row - 1, col), (row, col -1 ), (row, col + 1))
+            case (_, colX) => Array( (row - 1, col), (row + 1, col ), (row, col - 1))
+            case (_, 0) => Array((row, 1), (row - 1, 0), (row + 1, 0) )
+            case _ => Array((row -1, col), (row + 1, col), (row, col - 1), (row, col - 1))
+        }
+    }
+        
+    }
         // Corner point condition
         // Use conention left right up down
-        tup match {
-            case (0, 0)  => "north-west"
-            case (0, colX)  => ""
-            case
-        }
+        
+
 
     // Grid world initialization
     def valueOutput(x: Int, y: Int, H: Int): Unit = {
