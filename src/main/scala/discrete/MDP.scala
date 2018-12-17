@@ -49,11 +49,11 @@ object MDP {
         val rowY = rewardGrid.length - 1
 
         (row, col) match {
-            case (0, 0) => println("case 1"); Array((0,1), (1,0))
-            case (0, `colX`)  => println("case 2"); Array((0, colX - 1), (1, colX))
-            case (0, _) => println("case 5"); Array((0, col + 1), (0, col -1 ), (1, col))
-            case (`rowY`, 0)  => println("case 3"); Array((rowY - 1, 0), (rowY, 1))
-            case (`rowY`, `colX`) => println("case 4"); Array((rowY - 1, colX), (rowY, colX - 1))
+            case (0, 0) => Array((0,1), (1,0))
+            case (0, `colX`)  => Array((0, colX - 1), (1, colX))
+            case (0, _) => Array((0, col + 1), (0, col -1 ), (1, col))
+            case (`rowY`, 0)  => Array((rowY - 1, 0), (rowY, 1))
+            case (`rowY`, `colX`) => Array((rowY - 1, colX), (rowY, colX - 1))
             case (`rowY`, _) => Array( (row - 1, col), (row, col -1 ), (row, col + 1))
             case (_, `colX`) => Array( (row - 1, col), (row + 1, col ), (row, col - 1))
             case (_, 0) => Array((row, 1), (row - 1, 0), (row + 1, 0) )
@@ -61,38 +61,59 @@ object MDP {
         }    
     }
 
-    def getActionIndices(dir: String, row: Int, col: Int): Array[Tuple2[Int, Int]] = {
+    def getActionIndices(dir: String, row: Int, col: Int): Array[Tuple2[Double, Tuple2[Int, Int]]] = {
         val adjInd = getAdjIndices(row, col)
-        var dirInd = Array[Tuple2[Int, Int]]()
+        var dirInd = Array[Tuple2[Double, Tuple2[Int, Int]]]()
+
         if (dir == "N"){
-            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((row - 1, col))
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((row, col + 1))
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((row, col - 1))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((0.8, (row - 1, col))) else dirInd = dirInd ++ Array((0.8, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((0.2, (row, col + 1))) else dirInd = dirInd ++ Array((0.2, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((0.2, (row, col - 1))) else dirInd = dirInd ++ Array((0.2, (row, col)))
         } else if (dir == "S"){
-            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((row + 1, col))
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((row, col + 1))
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((row, col - 1))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((0.8, (row + 1, col))) else dirInd = dirInd ++ Array((0.8, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((0.2, (row, col + 1))) else dirInd = dirInd ++ Array((0.2, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((0.2, (row, col - 1))) else dirInd = dirInd ++ Array((0.2, (row, col)))
         } else if (dir == "E") {
-            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((row + 1, col))
-            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((row - 1, col))
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((row, col + 1))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((0.8, (row, col + 1))) else dirInd = dirInd ++ Array((0.8, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((0.2, (row + 1, col))) else dirInd = dirInd ++ Array((0.2, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((0.2, (row - 1, col))) else dirInd = dirInd ++ Array((0.2, (row, col)))
         } else if (dir == "W") {
-            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((row + 1, col))
-            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((row - 1, col))
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((row, col - 1))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((0.8, (row, col - 1))) else dirInd = dirInd ++ Array((0.8, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((0.2, (row + 1, col))) else dirInd = dirInd ++ Array((0.2, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((0.2, (row - 1, col))) else dirInd = dirInd ++ Array((0.2, (row, col)))
         }
         dirInd
     }
 
-
-
-    def valueIterate(row: Int, col: Int): Unit = {
-        val indices = getAdjIndices(row, col)
-        for (t <- indices){
-            valueGrid(t._1)(t._2) = rewardGrid(t._1)(t._2) + discountFactor * valueGrid(t._1)(t._2)
+    def valueIterateAtIndex(row: Int, col: Int): Unit = {
+        val actions = Array("N", "S", "E", "W")
+        for(a <- actions){
+            valueIterateAtIndexWithAction(a, row, col)
         }
     }
 
+    def valueIterateAtIndexWithAction(dir: String, row: Int, col: Int): Unit = {
+        val indices = getActionIndices(dir, row, col)
+        for (i <- indices){
+            val p = i._1
+            val t = i._2
+            val valueAtIndex = p * (rewardGrid(t._1)(t._2) + discountFactor * valueGrid(t._1)(t._2))
+            valueGrid(t._1)(t._2) = valueGrid(t._1)(t._2) + valueAtIndex
+        }
+    }
+
+    def valueIterateFullGrid(n: Int): Unit = {
+        for(i <- 0 to n){
+            for(r <- 0 to valueGrid.length - 1 ){
+                for(c <- 0 to valueGrid(r).length - 1 ){
+                    valueIterateAtIndex(r, c)
+                }
+            }
+        print(valueGrid)
+        }
+    }
+        
+    
     def getRewardFromGrid(row: Int, col: Int): Array[Double] = {
         val indices = getAdjIndices(row, col)
         indices.map(t => rewardGrid(t._1)(t._2))
