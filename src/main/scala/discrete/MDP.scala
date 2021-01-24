@@ -126,7 +126,21 @@ object MDP {
         print("\n")
         }
     }
-    
+
+    def visualizeRewardGrid(): Unit = {
+        for (r <- this.rewardGrid){
+            println("|" + r.deep.mkString(", ") + "|" )
+        }
+    }
+
+    def visualizeValueGrid(): Unit = {
+        for (r <- this.valueGrid){
+            println("|" + r.deep.mkString(", ") + "|" )
+        }
+    }
+
+
+
     // Corner point condition
     // Use conention left right up down
     // Grid world initialization
