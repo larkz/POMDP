@@ -16,6 +16,6 @@ libraryDependencies ++= Seq(
 
 resolvers += Classpaths.typesafeReleases
 
-mainClass in(Compile, run) := Some("POMDPMain")
-mainClass in(Compile, packageBin) := Some("POMDPMain")
+mainClass in(Compile, run) := Some("main.POMDPMain")
+mainClass in(Compile, packageBin) := Some("main.POMDPMain")
 

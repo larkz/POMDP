@@ -34,8 +34,8 @@ object MDP {
 
     def setRewardGrid(rGrid: Array[Array[Double]]): Unit = {
         this.rewardGrid = rGrid
-        this.valueGrid = Array.ofDim[Double](rGrid(0).length, rGrid.length)
-        this.optimalPolicyGrid = Array.ofDim[Double](rGrid(0).length, rGrid.length)
+        this.valueGrid = Array.ofDim[Double](rGrid.length, rGrid(0).length)
+        this.optimalPolicyGrid = Array.ofDim[Double](rGrid.length, rGrid(0).length)
     }
 
     def setDiscountFactor(dFactor: Double): Unit = {
