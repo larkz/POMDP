@@ -17,9 +17,9 @@ object POMDPMain extends App {
 
     val rewardGridInput = Array(
       Array(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-      Array(0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+      Array(0.0, 999.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
       Array(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-      Array(0.0, 0.0, 0.0, 0.0, 0.0, -300.0, 0.0, 0.0),
+      Array(0.0, 0.0, 0.0, 0.0, 0.0, -999.0, 0.0, 0.0),
       Array(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
     )
 
@@ -29,7 +29,12 @@ object POMDPMain extends App {
     val terminalStates = Array((1,1), (3,5) )
 
     mdp.setRewardGrid(rewardGridInput)
+    mdp.setTerminalStatesIndex(terminalStates)
+    mdp.visualizeValueGrid()
+
+
     mdp.valueIterateFullGrid(150)
+
 
     println("reward grid")
     mdp.visualizeRewardGrid()
@@ -37,10 +42,10 @@ object POMDPMain extends App {
     mdp.visualizeValueGrid()
 
     val policyGrid = mdp.getVIPolicy(terminalStates)
+
     for (r <- policyGrid){
       println("|" + r.deep.mkString(", ") + "|" )
     }
-
 
 
 

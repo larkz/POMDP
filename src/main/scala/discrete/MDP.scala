@@ -45,6 +45,17 @@ object MDP {
 
     def setTerminalStatesIndex(tStates: Array[Tuple2[Int, Int]]): Unit = {
         this.terminalStatesIndex = tStates
+
+        for (r <- 0 until this.valueGrid.length){
+            for (c <- 0 until this.valueGrid(r).length) {
+                if (this.terminalStatesIndex contains (r, c) ){
+                    this.valueGrid(r)(c) = 0.0
+                } else {
+                    this.valueGrid(r)(c) = scala.util.Random.nextDouble*100
+                }
+
+            }
+        }
     }
 
     def getAdjIndices(row: Int, col: Int): Array[Tuple2[Int, Int]] = {
@@ -99,34 +110,34 @@ object MDP {
         for (i <- indices){
             val p = i._1
             val t = i._2
-            valueAtIndex = valueAtIndex + p * (rewardGrid(t._1)(t._2) + discountFactor * valueGrid(t._1)(t._2))
+            if (this.terminalStatesIndex contains (t._1, t._2)  ){
+                valueAtIndex = valueAtIndex + p * rewardGrid(t._1)(t._2)
+            } else {
+                valueAtIndex = valueAtIndex + p * (rewardGrid(t._1)(t._2) + discountFactor * valueGrid(t._1)(t._2))
+            }
+
         }
         valueAtIndex
     }
 
-    def valueIterateAtIndex(row: Int, col: Int): Unit = {
+    def valueIterateAtIndex(row: Int, col: Int): Double = {
 
         var maxA = valueIterateAtIndexWithAction("N", row, col)
         for(a <- Array("S", "E", "W")){
             if (valueIterateAtIndexWithAction(a, row, col) > maxA) maxA = valueIterateAtIndexWithAction(a, row, col)
         }
-        valueGrid(row)(col) = maxA
+        maxA
     }
 
     def valueIterateFullGrid(n: Int): Unit = {
         for(i <- 0 to n){
             for(r <- 0 to valueGrid.length - 1 ){
                 for(c <- 0 to valueGrid(r).length - 1 ){
-                    if( this.terminalStatesIndex contains (r,c) ){
-                        this.valueGrid(r)(c) = 0.0
-                    } else {
-                        valueIterateAtIndex(r, c)
-                    }
-                    
+                    valueGrid(r)(c) = this.rewardGrid(r)(c) + valueIterateAtIndex(r, c)
                 }
             }
-        print(valueGrid.deep)
-        print("\n")
+        // print(valueGrid.deep)
+        // print("\n")
         }
     }
 
