@@ -31,10 +31,7 @@ object POMDPMain extends App {
     mdp.setRewardGrid(rewardGridInput)
     mdp.setTerminalStatesIndex(terminalStates)
     mdp.visualizeValueGrid()
-
-
     mdp.valueIterateFullGrid(150)
-
 
     println("reward grid")
     mdp.visualizeRewardGrid()

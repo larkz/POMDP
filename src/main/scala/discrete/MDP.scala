@@ -86,18 +86,22 @@ object MDP {
 
         if (dir == "N"){
             if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((forwardProb, (row - 1, col))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array(((1 - forwardProb) / branchingFactor, (row, col)))
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array(((1 - forwardProb) / branchingFactor, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((deviateProb, (row + 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         } else if (dir == "S"){
             if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((forwardProb, (row + 1, col))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((deviateProb, (row - 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
             if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
             if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         } else if (dir == "E") {
             if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((forwardProb, (row, col + 1))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
             if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((deviateProb, (row + 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
             if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((deviateProb, (row - 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         } else if (dir == "W") {
             if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((forwardProb, (row, col - 1))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
             if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((deviateProb, (row + 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
             if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((deviateProb, (row - 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         }
@@ -136,8 +140,6 @@ object MDP {
                     valueGrid(r)(c) = this.rewardGrid(r)(c) + valueIterateAtIndex(r, c)
                 }
             }
-        // print(valueGrid.deep)
-        // print("\n")
         }
     }
 
