@@ -23,6 +23,7 @@ object MDP {
     var discountFactor = 0.8 //fixed
     var transitionProbabilities = Array[Array[Double]]() //fixed, assume fixed through out
     var terminalStatesIndex = Array[Tuple2[Int, Int]]()
+    val actions = Array("N", "S", "E", "W")
 
     def getValueGrid(): Array[Array[Double]] = {
         this.valueGrid
@@ -44,6 +45,17 @@ object MDP {
 
     def setTerminalStatesIndex(tStates: Array[Tuple2[Int, Int]]): Unit = {
         this.terminalStatesIndex = tStates
+
+        for (r <- 0 until this.valueGrid.length){
+            for (c <- 0 until this.valueGrid(r).length) {
+                if (this.terminalStatesIndex contains (r, c) ){
+                    this.valueGrid(r)(c) = 0.0
+                } else {
+                    this.valueGrid(r)(c) = scala.util.Random.nextDouble*100
+                }
+
+            }
+        }
     }
 
     def getAdjIndices(row: Int, col: Int): Array[Tuple2[Int, Int]] = {
@@ -66,26 +78,32 @@ object MDP {
         }    
     }
 
-    def getActionIndices(dir: String, row: Int, col: Int): Array[Tuple2[Double, Tuple2[Int, Int]]] = {
+    def getActionIndices(dir: String, row: Int, col: Int, forwardProb: Double = 0.8): Array[Tuple2[Double, Tuple2[Int, Int]]] = {
         val adjInd = getAdjIndices(row, col)
         var dirInd = Array[Tuple2[Double, Tuple2[Int, Int]]]()
+        val branchingFactor = 2.0
+        val deviateProb = (1 - forwardProb) / branchingFactor
 
         if (dir == "N"){
-            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((0.8, (row - 1, col))) else dirInd = dirInd ++ Array((0.8, (row, col)))
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((0.1, (row, col + 1))) else dirInd = dirInd ++ Array((0.1, (row, col)))
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((0.1, (row, col - 1))) else dirInd = dirInd ++ Array((0.1, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((forwardProb, (row - 1, col))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((deviateProb, (row + 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         } else if (dir == "S"){
-            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((0.8, (row + 1, col))) else dirInd = dirInd ++ Array((0.8, (row, col)))
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((0.1, (row, col + 1))) else dirInd = dirInd ++ Array((0.1, (row, col)))
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((0.1, (row, col - 1))) else dirInd = dirInd ++ Array((0.1, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((forwardProb, (row + 1, col))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((deviateProb, (row - 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         } else if (dir == "E") {
-            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((0.8, (row, col + 1))) else dirInd = dirInd ++ Array((0.8, (row, col)))
-            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((0.1, (row + 1, col))) else dirInd = dirInd ++ Array((0.1, (row, col)))
-            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((0.1, (row - 1, col))) else dirInd = dirInd ++ Array((0.1, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((forwardProb, (row, col + 1))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((deviateProb, (row, col - 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((deviateProb, (row + 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((deviateProb, (row - 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         } else if (dir == "W") {
-            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((0.8, (row, col - 1))) else dirInd = dirInd ++ Array((0.8, (row, col)))
-            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((0.1, (row + 1, col))) else dirInd = dirInd ++ Array((0.1, (row, col)))
-            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((0.1, (row - 1, col))) else dirInd = dirInd ++ Array((0.1, (row, col)))
+            if (adjInd contains (row, col - 1)) dirInd = dirInd ++ Array((forwardProb, (row, col - 1))) else dirInd = dirInd ++ Array((forwardProb, (row, col)))
+            if (adjInd contains (row, col + 1)) dirInd = dirInd ++ Array((deviateProb, (row, col + 1))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row + 1, col)) dirInd = dirInd ++ Array((deviateProb, (row + 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
+            if (adjInd contains (row - 1, col)) dirInd = dirInd ++ Array((deviateProb, (row - 1, col))) else dirInd = dirInd ++ Array((deviateProb, (row, col)))
         }
         dirInd
     }
@@ -96,37 +114,86 @@ object MDP {
         for (i <- indices){
             val p = i._1
             val t = i._2
-            valueAtIndex = valueAtIndex + p * (rewardGrid(t._1)(t._2) + discountFactor * valueGrid(t._1)(t._2))
+            if (this.terminalStatesIndex contains (t._1, t._2)  ){
+                valueAtIndex = valueAtIndex + p * rewardGrid(t._1)(t._2)
+            } else {
+                valueAtIndex = valueAtIndex + p * (rewardGrid(t._1)(t._2) + discountFactor * valueGrid(t._1)(t._2))
+            }
+
         }
         valueAtIndex
     }
 
-    def valueIterateAtIndex(row: Int, col: Int): Unit = {
-        val actions = Array("N", "S", "E", "W")
+    def valueIterateAtIndex(row: Int, col: Int): Double = {
+
         var maxA = valueIterateAtIndexWithAction("N", row, col)
         for(a <- Array("S", "E", "W")){
             if (valueIterateAtIndexWithAction(a, row, col) > maxA) maxA = valueIterateAtIndexWithAction(a, row, col)
         }
-        valueGrid(row)(col) = maxA
+        maxA
     }
 
     def valueIterateFullGrid(n: Int): Unit = {
         for(i <- 0 to n){
             for(r <- 0 to valueGrid.length - 1 ){
                 for(c <- 0 to valueGrid(r).length - 1 ){
-                    if( this.terminalStatesIndex contains (r,c) ){
-                        this.valueGrid(r)(c) = 0.0
-                    } else {
-                        valueIterateAtIndex(r, c)
-                    }
-                    
+                    valueGrid(r)(c) = this.rewardGrid(r)(c) + valueIterateAtIndex(r, c)
                 }
             }
-        print(valueGrid.deep)
-        print("\n")
         }
     }
-    
+
+    def visualizeRewardGrid(): Unit = {
+        for (r <- this.rewardGrid){
+            println("|" + r.deep.mkString(", ") + "|" )
+        }
+    }
+
+    def visualizeValueGrid(): Unit = {
+        for (r <- this.valueGrid){
+            println("|" + r.deep.mkString(", ") + "|" )
+        }
+    }
+
+
+    def getVIPolicy(terminalStates: Array[Tuple2[Int, Int]] = Array() ): Array[Array[String]] = {
+
+        var policyGrid = Array.ofDim[String](this.valueGrid.length, this.valueGrid(0).length)
+
+        for (r <- 0 to policyGrid.length - 1) {
+            for (c <- 0 to policyGrid(0).length - 1) {
+                if ( terminalStates contains (r,c) ) {
+                    if (this.rewardGrid(r)(c) > 0){
+                        policyGrid(r)(c) = "+"
+                    } else {
+                        policyGrid(r)(c) = "x"
+                    }
+
+                } else {
+                    var adjInds = getAdjIndices(r, c)
+                    var maxValue = -50000.0
+                    for (ind <- adjInds){
+                        var tempVal = this.valueGrid(ind._1)(ind._2)
+                        if (tempVal > maxValue) {
+                            maxValue = tempVal
+                            var bestAction = "*"
+                            if (ind._1 > r) {bestAction = "↓"}
+                            if (ind._1 < r) {bestAction = "↑"}
+                            if (ind._2 < c) {bestAction = "←"}
+                            if (ind._2 > c) {bestAction = "→"}
+                            policyGrid(r)(c) = bestAction
+
+                        }
+                    }
+                }
+            }
+        }
+        return policyGrid
+    }
+
+
+
+
     // Corner point condition
     // Use conention left right up down
     // Grid world initialization
