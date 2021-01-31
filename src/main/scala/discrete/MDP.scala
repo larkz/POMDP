@@ -24,6 +24,7 @@ object MDP {
     var transitionProbabilities = Array[Array[Double]]() //fixed, assume fixed through out
     var terminalStatesIndex = Array[Tuple2[Int, Int]]()
     val actions = Array("N", "S", "E", "W")
+    val earlyStoppingThresh = 0.0001
 
     def getValueGrid(): Array[Array[Double]] = {
         this.valueGrid
@@ -133,14 +134,27 @@ object MDP {
         maxA
     }
 
-    def valueIterateFullGrid(n: Int): Unit = {
+    def valueIterateFullGrid(n: Int): Array[Double] = {
+        var deltaArray = Array[Double]()
         for(i <- 0 to n){
+            var valueDelta = 0.0
             for(r <- 0 to valueGrid.length - 1 ){
                 for(c <- 0 to valueGrid(r).length - 1 ){
-                    valueGrid(r)(c) = this.rewardGrid(r)(c) + valueIterateAtIndex(r, c)
+                    var newValue = this.rewardGrid(r)(c) + valueIterateAtIndex(r, c)
+                    valueDelta = Math.max(valueDelta, Math.abs(valueGrid(r)(c) -  newValue))
+                    valueGrid(r)(c) = newValue
+
+                    deltaArray = deltaArray :+ valueDelta
+                    if (valueDelta < earlyStoppingThresh){
+                        val totalIters = deltaArray.length
+                        println(f"Value Iteration early stopping at $totalIters iterations, with $earlyStoppingThresh thresh")
+                        return deltaArray
+                    }
+
                 }
             }
         }
+        return deltaArray
     }
 
     def visualizeRewardGrid(): Unit = {
@@ -172,7 +186,7 @@ object MDP {
                 } else {
                     var adjInds = getAdjIndices(r, c)
                     var maxValue = -50000.0
-                    for (ind <- adjInds){
+                    for (ind <- adjInds) {
                         var tempVal = this.valueGrid(ind._1)(ind._2)
                         if (tempVal > maxValue) {
                             maxValue = tempVal
@@ -182,7 +196,6 @@ object MDP {
                             if (ind._2 < c) {bestAction = "←"}
                             if (ind._2 > c) {bestAction = "→"}
                             policyGrid(r)(c) = bestAction
-
                         }
                     }
                 }
